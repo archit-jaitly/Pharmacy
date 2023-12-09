@@ -29,13 +29,13 @@ func (mc *MedicineController) AddMedicine(c *fiber.Ctx) error {
 
 	uuid := uuid.New()
 	medicine.SerialNumber = uuid.String()
-	_, err := mc.MedicinesCollection.InsertOne(context.Background(), medicine)
+	resp, err := mc.MedicinesCollection.InsertOne(context.Background(), medicine)
 	if err != nil {
 		errMsg := fmt.Sprintf("Add medicine failed: %s", err.Error())
 		return fmt.Errorf(errMsg)
 	}
 
-	mc.SMS.SendSMS("pharmacy Owner", fmt.Sprintf("New medicine added: %s  id: %s  serial number: %s", medicine.Name, medicine.ID, medicine.SerialNumber))
+	mc.SMS.SendSMS("pharmacy Owner", fmt.Sprintf("New medicine added: %s  id: %s  serial number: %s", medicine.Name, resp.InsertedID, medicine.SerialNumber))
 	status := mc.SMS.CheckSMSStatus(medicine.ID)
 
 	return c.JSON(fiber.Map{
